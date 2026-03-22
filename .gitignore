@@ -1,0 +1,17 @@
+.venv/
+
+data/raw/
+data/interim/
+
+models/mlruns/
+models/*.joblib
+
+__pycache__/
+
+.ipynb_checkpoints/
+
+.DS_Store
+Thumbs.db
+
+.vscode/
+
