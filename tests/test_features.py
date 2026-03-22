@@ -1,10 +1,10 @@
 """Tests for src/features.py — feature extraction and naming."""
-import pytest
+
 import numpy as np
+import pytest
 
 from src.config import N_MFCC, RAVDESS_DIR
-from src.features import extract_features, get_feature_names, extract_mfccs
-
+from src.features import extract_features, extract_mfccs, get_feature_names
 
 # Use a real sample from the dataset for integration-style tests
 SAMPLE_WAV = str(RAVDESS_DIR / "Actor_01" / "03-01-01-01-01-01-01.wav")
@@ -16,7 +16,7 @@ class TestGetFeatureNames:
         assert isinstance(names, list)
 
     def test_default_length_matches_n_mfcc(self):
-        # N × 6 (MFCC stats) + N × 2 (delta) + N × 2 (delta2) + 24 (chroma) + 10 (spectral)
+        # N x 6 (MFCC stats) + N x 2 (delta) + N x 2 (delta2) + 24 (chroma) + 10 (spectral)
         expected = N_MFCC * 6 + N_MFCC * 2 + N_MFCC * 2 + 24 + 10
         assert len(get_feature_names()) == expected
 
@@ -44,7 +44,7 @@ class TestGetFeatureNames:
     def test_contains_chroma_features(self):
         names = get_feature_names()
         chroma_names = [n for n in names if n.startswith("chroma")]
-        assert len(chroma_names) == 24  # 12 bins × 2 stats
+        assert len(chroma_names) == 24  # 12 bins x 2 stats
 
     def test_contains_delta_features(self):
         names = get_feature_names()

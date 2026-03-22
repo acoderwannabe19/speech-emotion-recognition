@@ -1,18 +1,20 @@
 """
 Evaluation helpers — confusion matrix, classification report, plots.
 """
-import mlflow
-import numpy as np
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import mlflow
+import pandas as pd
 import seaborn as sns
 from sklearn.metrics import (
-    classification_report, confusion_matrix, ConfusionMatrixDisplay,
+    classification_report,
+    confusion_matrix,
 )
 
 
-def plot_confusion_matrix(y_true, y_pred, title="Confusion Matrix",
-                          figsize=(12, 10), normalize="true"):
+def plot_confusion_matrix(
+    y_true, y_pred, title="Confusion Matrix", figsize=(12, 10), normalize="true"
+):
     """
     Plot a confusion matrix with seaborn.
     normalize: 'true' | 'pred' | 'all' | None
@@ -22,9 +24,13 @@ def plot_confusion_matrix(y_true, y_pred, title="Confusion Matrix",
 
     fig, ax = plt.subplots(figsize=figsize)
     sns.heatmap(
-        cm, annot=True, fmt=".2f" if normalize else "d",
-        xticklabels=labels, yticklabels=labels,
-        cmap="YlOrBr", ax=ax,
+        cm,
+        annot=True,
+        fmt=".2f" if normalize else "d",
+        xticklabels=labels,
+        yticklabels=labels,
+        cmap="YlOrBr",
+        ax=ax,
     )
     ax.set_xlabel("Predicted")
     ax.set_ylabel("Actual")
@@ -40,9 +46,7 @@ def print_classification_report(y_true, y_pred):
     return report
 
 
-def plot_sweep_results(results_df: pd.DataFrame,
-                       metric: str = "f1_weighted",
-                       figsize=(14, 6)):
+def plot_sweep_results(results_df: pd.DataFrame, metric: str = "f1_weighted", figsize=(14, 6)):
     """Bar chart comparing all sweep runs, coloured by model type."""
     df = results_df.sort_values(metric, ascending=False).reset_index(drop=True)
 
@@ -50,8 +54,9 @@ def plot_sweep_results(results_df: pd.DataFrame,
     colors = sns.color_palette("husl", n_colors=df["model_type"].nunique())
     model_colors = dict(zip(df["model_type"].unique(), colors))
 
-    bars = ax.barh(
-        df["run_name"], df[metric],
+    ax.barh(
+        df["run_name"],
+        df[metric],
         color=[model_colors[m] for m in df["model_type"]],
     )
     ax.set_xlabel(metric)
@@ -60,6 +65,7 @@ def plot_sweep_results(results_df: pd.DataFrame,
 
     # Legend
     from matplotlib.patches import Patch
+
     legend_handles = [Patch(color=c, label=m) for m, c in model_colors.items()]
     ax.legend(handles=legend_handles, loc="lower right")
 

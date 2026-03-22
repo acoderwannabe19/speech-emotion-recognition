@@ -1,14 +1,15 @@
 """Tests for src/evaluate.py — confusion matrix, report, sweep plots."""
-import pytest
-import numpy as np
-import pandas as pd
+
 import matplotlib
+import pandas as pd
+import pytest
+
 matplotlib.use("Agg")  # non-interactive backend for CI
 
 from src.evaluate import (
     plot_confusion_matrix,
-    print_classification_report,
     plot_sweep_results,
+    print_classification_report,
 )
 
 
@@ -52,11 +53,13 @@ class TestPrintClassificationReport:
 
 class TestPlotSweepResults:
     def test_returns_figure(self):
-        df = pd.DataFrame({
-            "run_name": ["run_1", "run_2", "run_3"],
-            "model_type": ["SVM", "RF", "SVM"],
-            "f1_weighted": [0.80, 0.75, 0.82],
-        })
+        df = pd.DataFrame(
+            {
+                "run_name": ["run_1", "run_2", "run_3"],
+                "model_type": ["SVM", "RF", "SVM"],
+                "f1_weighted": [0.80, 0.75, 0.82],
+            }
+        )
         fig = plot_sweep_results(df, metric="f1_weighted")
         assert isinstance(fig, matplotlib.figure.Figure)
         matplotlib.pyplot.close(fig)

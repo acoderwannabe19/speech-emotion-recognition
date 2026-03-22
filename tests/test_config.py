@@ -1,15 +1,27 @@
 """Tests for src/config.py — paths, mappings, and constants."""
-import pytest
+
 from pathlib import Path
 
 from src.config import (
-    PROJECT_ROOT, DATA_RAW, DATA_PROCESSED, MODELS_DIR,
-    RAVDESS_DIR, SAVEE_DIR, TESS_DIR, CREMA_DIR,
-    RAVDESS_EMOTION_MAP, RAVDESS_GENDER_MAP,
-    SAVEE_EMOTION_MAP, TESS_EMOTION_MAP,
-    CREMA_EMOTION_MAP, CREMA_FEMALE_IDS,
+    CREMA_DIR,
+    CREMA_EMOTION_MAP,
+    CREMA_FEMALE_IDS,
+    DATA_PROCESSED,
+    DATA_RAW,
+    DURATION,
     EXCLUDED_EMOTIONS,
-    N_MFCC, SR, DURATION, OFFSET,
+    MODELS_DIR,
+    N_MFCC,
+    OFFSET,
+    PROJECT_ROOT,
+    RAVDESS_DIR,
+    RAVDESS_EMOTION_MAP,
+    RAVDESS_GENDER_MAP,
+    SAVEE_DIR,
+    SAVEE_EMOTION_MAP,
+    SR,
+    TESS_DIR,
+    TESS_EMOTION_MAP,
 )
 
 

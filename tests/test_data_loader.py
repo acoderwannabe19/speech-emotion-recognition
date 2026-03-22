@@ -1,12 +1,16 @@
 """Tests for src/data_loader.py — dataset loading and filtering."""
-import pytest
+
 import pandas as pd
+import pytest
 
 from src.config import EXCLUDED_EMOTIONS
 from src.data_loader import (
-    load_ravdess, load_savee, load_tess, load_crema, load_all_datasets,
+    load_all_datasets,
+    load_crema,
+    load_ravdess,
+    load_savee,
+    load_tess,
 )
-
 
 EXPECTED_COLUMNS = ["labels", "source", "path"]
 

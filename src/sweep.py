@@ -5,25 +5,27 @@ Uses Optuna's Tree-structured Parzen Estimator (TPE) to intelligently
 explore hyperparameter spaces instead of brute-force grid search.
 Also includes a Soft-Voting Classifier built from the best individual models.
 """
+
 import warnings
+
 import mlflow
 import mlflow.sklearn
-import numpy as np
-import pandas as pd
 import optuna
+import pandas as pd
 from sklearn.ensemble import (
-    RandomForestClassifier,
     GradientBoostingClassifier,
+    RandomForestClassifier,
     VotingClassifier,
 )
-from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import (
-    accuracy_score, f1_score, precision_score, recall_score,
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
 )
-
-from src.config import MODELS_DIR
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 
 # Silence Optuna's verbose trial logs (progress is printed manually)
 optuna.logging.set_verbosity(optuna.logging.WARNING)
@@ -32,16 +34,18 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 # Each entry maps a model name to a function that receives an Optuna trial
 # and returns (model_instance, param_dict_for_logging).
 
-MODEL_REGISTRY: dict[str, str] = {}          # filled by decorator
+MODEL_REGISTRY: dict[str, str] = {}  # filled by decorator
 _SUGGEST_FNS: dict[str, callable] = {}
 
 
 def _register(name: str):
     """Decorator to register an Optuna suggest function for a model."""
+
     def decorator(fn):
         _SUGGEST_FNS[name] = fn
         MODEL_REGISTRY[name] = name
         return fn
+
     return decorator
 
 
@@ -104,6 +108,7 @@ def _suggest_lr(trial: optuna.Trial):
 
 # ── Evaluation ──────────────────────────────────────────────────────────────
 
+
 def evaluate_model(model, X_test, y_test) -> dict:
     """Return a dict of common classification metrics."""
     y_pred = model.predict(X_test)
@@ -118,6 +123,7 @@ def evaluate_model(model, X_test, y_test) -> dict:
 
 
 # ── Bayesian sweep ──────────────────────────────────────────────────────────
+
 
 def run_sweep(
     X_train: pd.DataFrame,
@@ -152,11 +158,11 @@ def run_sweep(
     for name in model_names:
         suggest_fn = _SUGGEST_FNS[name]
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"  {name} — {n_trials_per_model} Bayesian trials (TPE)")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
-        def objective(trial):
+        def objective(trial, suggest_fn=suggest_fn, name=name):
             model, params = suggest_fn(trial)
             run_name = f"{name}_trial{trial.number}"
 
@@ -170,16 +176,20 @@ def run_sweep(
                 mlflow.log_metrics(metrics)
                 mlflow.sklearn.log_model(model, artifact_path="model")
 
-                print(f"  [trial {trial.number:2d}] acc={metrics['accuracy']:.4f}  "
-                      f"f1={metrics['f1_weighted']:.4f}  | {params}")
+                print(
+                    f"  [trial {trial.number:2d}] acc={metrics['accuracy']:.4f}  "
+                    f"f1={metrics['f1_weighted']:.4f}  | {params}"
+                )
 
-                results.append({
-                    "run_id": mlflow.active_run().info.run_id,
-                    "model_type": name,
-                    "run_name": run_name,
-                    **params,
-                    **metrics,
-                })
+                results.append(
+                    {
+                        "run_id": mlflow.active_run().info.run_id,
+                        "model_type": name,
+                        "run_name": run_name,
+                        **params,
+                        **metrics,
+                    }
+                )
 
             return metrics["f1_weighted"]
 
@@ -196,6 +206,7 @@ def run_sweep(
 
 
 # ── Voting Classifier ──────────────────────────────────────────────────────
+
 
 def build_voting_classifier(
     results_df: pd.DataFrame,
@@ -225,15 +236,14 @@ def build_voting_classifier(
 
     # Get the best run per model family, then take top-N
     best_per_family = (
-        results_df
-        .sort_values("f1_weighted", ascending=False)
+        results_df.sort_values("f1_weighted", ascending=False)
         .drop_duplicates(subset="model_type", keep="first")
         .head(top_n)
     )
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"  VotingClassifier ({voting}) — top {top_n} model families")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Load each best model from MLflow
     estimators = []
@@ -259,15 +269,14 @@ def build_voting_classifier(
         mlflow.sklearn.log_model(vc, artifact_path="model")
         run_id = mlflow.active_run().info.run_id
 
-    print(f"\n  VotingClassifier  acc={metrics['accuracy']:.4f}  "
-          f"f1={metrics['f1_weighted']:.4f}")
+    print(f"\n  VotingClassifier  acc={metrics['accuracy']:.4f}  f1={metrics['f1_weighted']:.4f}")
 
     return vc, metrics, run_id
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
-def get_best_run(results_df: pd.DataFrame,
-                 metric: str = "f1_weighted") -> pd.Series:
+
+def get_best_run(results_df: pd.DataFrame, metric: str = "f1_weighted") -> pd.Series:
     """Return the row with the highest value of `metric`."""
     return results_df.loc[results_df[metric].idxmax()]

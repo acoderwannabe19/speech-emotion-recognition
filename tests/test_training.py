@@ -1,9 +1,10 @@
 """Tests for src/training.py — split, scale, and data preparation."""
-import pytest
+
 import numpy as np
 import pandas as pd
+import pytest
 
-from src.training import split_data, scale_features, prepare_data, META_COLS
+from src.training import META_COLS, prepare_data, scale_features, split_data
 
 
 @pytest.fixture
@@ -11,18 +12,20 @@ def sample_df():
     """Create a small synthetic dataset that mimics the real one."""
     np.random.seed(42)
     n = 100
-    df = pd.DataFrame({
-        "labels": np.random.choice(
-            ["male_angry", "female_happy", "male_sad", "female_neutral"],
-            size=n,
-        ),
-        "source": np.random.choice(["RAVDESS", "TESS", "CREMA"], size=n),
-        "path": [f"/fake/path/{i}.wav" for i in range(n)],
-        "mfcc0_mean": np.random.randn(n),
-        "mfcc0_std": np.random.rand(n),
-        "mfcc1_mean": np.random.randn(n),
-        "mfcc1_std": np.random.rand(n),
-    })
+    df = pd.DataFrame(
+        {
+            "labels": np.random.choice(
+                ["male_angry", "female_happy", "male_sad", "female_neutral"],
+                size=n,
+            ),
+            "source": np.random.choice(["RAVDESS", "TESS", "CREMA"], size=n),
+            "path": [f"/fake/path/{i}.wav" for i in range(n)],
+            "mfcc0_mean": np.random.randn(n),
+            "mfcc0_std": np.random.rand(n),
+            "mfcc1_mean": np.random.randn(n),
+            "mfcc1_std": np.random.rand(n),
+        }
+    )
     return df
 
 
@@ -84,12 +87,8 @@ class TestScaleFeatures:
         X_train, X_test, _, _ = split_data(sample_df)
         _, _, scaler = scale_features(X_train, X_test, save_scaler=False)
         # Scaler's data_min_ should match X_train's min
-        np.testing.assert_array_almost_equal(
-            scaler.data_min_, X_train.min().values
-        )
-        np.testing.assert_array_almost_equal(
-            scaler.data_max_, X_train.max().values
-        )
+        np.testing.assert_array_almost_equal(scaler.data_min_, X_train.min().values)
+        np.testing.assert_array_almost_equal(scaler.data_max_, X_train.max().values)
 
 
 class TestPrepareData:

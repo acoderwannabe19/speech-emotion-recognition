@@ -1,16 +1,24 @@
 """
 Load and format each raw dataset into a unified DataFrame(labels, source, path).
 """
+
 import os
+
 import pandas as pd
 
 from src.config import (
-    RAVDESS_DIR, SAVEE_DIR, TESS_DIR, CREMA_DIR,
-    RAVDESS_EMOTION_MAP, RAVDESS_GENDER_MAP,
-    SAVEE_EMOTION_MAP, TESS_EMOTION_MAP,
-    CREMA_EMOTION_MAP, CREMA_FEMALE_IDS,
-    EXCLUDED_EMOTIONS,
+    CREMA_DIR,
+    CREMA_EMOTION_MAP,
+    CREMA_FEMALE_IDS,
     DATA_RAW,
+    EXCLUDED_EMOTIONS,
+    RAVDESS_DIR,
+    RAVDESS_EMOTION_MAP,
+    RAVDESS_GENDER_MAP,
+    SAVEE_DIR,
+    SAVEE_EMOTION_MAP,
+    TESS_DIR,
+    TESS_EMOTION_MAP,
 )
 
 
@@ -29,11 +37,13 @@ def load_ravdess() -> pd.DataFrame:
                 continue
             emotion = RAVDESS_EMOTION_MAP[int(parts[2])]
             gender = RAVDESS_GENDER_MAP[int(parts[6]) % 2]
-            rows.append({
-                "labels": f"{gender}_{emotion}",
-                "source": "RAVDESS",
-                "path": str(subdir_path / f),
-            })
+            rows.append(
+                {
+                    "labels": f"{gender}_{emotion}",
+                    "source": "RAVDESS",
+                    "path": str(subdir_path / f),
+                }
+            )
     return pd.DataFrame(rows)
 
 
@@ -44,11 +54,13 @@ def load_savee() -> pd.DataFrame:
         if not f.endswith(".wav"):
             continue
         label = SAVEE_EMOTION_MAP.get(f[-8:-6], "male_error")
-        rows.append({
-            "labels": label,
-            "source": "SAVEE",
-            "path": str(SAVEE_DIR / f),
-        })
+        rows.append(
+            {
+                "labels": label,
+                "source": "SAVEE",
+                "path": str(SAVEE_DIR / f),
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -62,11 +74,13 @@ def load_tess() -> pd.DataFrame:
         label = TESS_EMOTION_MAP.get(folder, "Unknown")
         for f in os.listdir(folder_path):
             if f.endswith(".wav"):
-                rows.append({
-                    "labels": label,
-                    "source": "TESS",
-                    "path": str(folder_path / f),
-                })
+                rows.append(
+                    {
+                        "labels": label,
+                        "source": "TESS",
+                        "path": str(folder_path / f),
+                    }
+                )
     return pd.DataFrame(rows)
 
 
@@ -80,11 +94,13 @@ def load_crema() -> pd.DataFrame:
         speaker_id = int(parts[0])
         emotion = CREMA_EMOTION_MAP.get(parts[2], "Unknown")
         gender = "female" if speaker_id in CREMA_FEMALE_IDS else "male"
-        rows.append({
-            "labels": f"{gender}_{emotion}",
-            "source": "CREMA",
-            "path": str(CREMA_DIR / f),
-        })
+        rows.append(
+            {
+                "labels": f"{gender}_{emotion}",
+                "source": "CREMA",
+                "path": str(CREMA_DIR / f),
+            }
+        )
     return pd.DataFrame(rows)
 
 

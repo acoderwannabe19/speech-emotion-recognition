@@ -4,21 +4,19 @@ Train / evaluate helpers — split, scale, save artefacts.
 Key point: scaling is done AFTER the train/test split to prevent data leakage.
 The scaler is fit on the training set only, then applied to the test set.
 """
+
 import joblib
 import pandas as pd
-from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-from src.config import MODELS_DIR, DATA_PROCESSED
-
+from src.config import DATA_PROCESSED, MODELS_DIR
 
 # Columns that are NOT features
 META_COLS = ["labels", "source", "path"]
 
 
-def split_data(df: pd.DataFrame, test_size: float = 0.25,
-               random_state: int = 42):
+def split_data(df: pd.DataFrame, test_size: float = 0.25, random_state: int = 42):
     """
     Split into train / test. Returns X_train, X_test, y_train, y_test
     (feature columns only for X, label column for y).
@@ -29,13 +27,16 @@ def split_data(df: pd.DataFrame, test_size: float = 0.25,
     y = df["labels"]
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, shuffle=True, random_state=random_state,
+        X,
+        y,
+        test_size=test_size,
+        shuffle=True,
+        random_state=random_state,
     )
     return X_train, X_test, y_train, y_test
 
 
-def scale_features(X_train: pd.DataFrame, X_test: pd.DataFrame,
-                   save_scaler: bool = True):
+def scale_features(X_train: pd.DataFrame, X_test: pd.DataFrame, save_scaler: bool = True):
     """
     Fit a MinMaxScaler on X_train, transform both X_train and X_test.
     Optionally saves the fitted scaler to models/ for later inference.
@@ -65,8 +66,7 @@ def scale_features(X_train: pd.DataFrame, X_test: pd.DataFrame,
     return X_train_scaled, X_test_scaled, scaler
 
 
-def prepare_data(df: pd.DataFrame, test_size: float = 0.25,
-                 random_state: int = 42):
+def prepare_data(df: pd.DataFrame, test_size: float = 0.25, random_state: int = 42):
     """
     Convenience wrapper: split → scale (no leakage).
 
@@ -75,7 +75,9 @@ def prepare_data(df: pd.DataFrame, test_size: float = 0.25,
     X_train, X_test, y_train, y_test, scaler
     """
     X_train, X_test, y_train, y_test = split_data(
-        df, test_size=test_size, random_state=random_state,
+        df,
+        test_size=test_size,
+        random_state=random_state,
     )
     X_train, X_test, scaler = scale_features(X_train, X_test)
     return X_train, X_test, y_train, y_test, scaler

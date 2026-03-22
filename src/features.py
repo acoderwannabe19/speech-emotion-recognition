@@ -2,25 +2,26 @@
 Audio feature extraction utilities.
 
 Extracts a rich set of handcrafted features from each audio file:
-  • N MFCCs  × 6 statistics (mean, std, min, max, skew, kurtosis)    = N×6
-  • N Δ-MFCCs × 2 statistics (mean, std)                             = N×2
-  • N Δ²-MFCCs × 2 statistics (mean, std)                            = N×2
-  • 12 Chroma bins × 2 statistics (mean, std)                        = 24
-  • Spectral: ZCR, RMS, centroid, bandwidth, rolloff × 2 (mean, std) = 10
+  - N MFCCs  x 6 statistics (mean, std, min, max, skew, kurtosis)    = Nx6
+  - N delta-MFCCs x 2 statistics (mean, std)                         = Nx2
+  - N delta2-MFCCs x 2 statistics (mean, std)                        = Nx2
+  - 12 Chroma bins x 2 statistics (mean, std)                        = 24
+  - Spectral: ZCR, RMS, centroid, bandwidth, rolloff x 2 (mean, std) = 10
 
-With N_MFCC=40 → 240 + 80 + 80 + 24 + 10 = 434 features
-With N_MFCC=20 → 120 + 40 + 40 + 24 + 10 = 234 features
-With N_MFCC=13 → 78 + 26 + 26 + 24 + 10 = 164 features
+With N_MFCC=40 -> 240 + 80 + 80 + 24 + 10 = 434 features
+With N_MFCC=20 -> 120 + 40 + 40 + 24 + 10 = 234 features
+With N_MFCC=13 -> 78 + 26 + 26 + 24 + 10 = 164 features
 """
+
+import librosa
 import numpy as np
 import pandas as pd
-import librosa
 from scipy import stats as sp_stats
 
-from src.config import N_MFCC, SR, DURATION, OFFSET
+from src.config import N_MFCC, OFFSET, SR
 
 
-# ── Feature names (in order) – useful for inspection / importance plots ────
+# ── Feature names (in order) - useful for inspection / importance plots ────
 def get_feature_names(n_mfcc: int = N_MFCC) -> list[str]:
     """Return an ordered list of feature column names."""
     names = []
@@ -36,8 +37,7 @@ def get_feature_names(n_mfcc: int = N_MFCC) -> list[str]:
     for i in range(12):
         for stat in ("mean", "std"):
             names.append(f"chroma{i}_{stat}")
-    for feat in ("zcr", "rms", "spectral_centroid",
-                 "spectral_bandwidth", "spectral_rolloff"):
+    for feat in ("zcr", "rms", "spectral_centroid", "spectral_bandwidth", "spectral_rolloff"):
         for stat in ("mean", "std"):
             names.append(f"{feat}_{stat}")
     return names
@@ -45,17 +45,20 @@ def get_feature_names(n_mfcc: int = N_MFCC) -> list[str]:
 
 # ── Single-file extraction ─────────────────────────────────────────────────
 
-def extract_features(file_path: str, sr: int = SR,
-                    offset: float = OFFSET,
-                     n_mfcc: int = N_MFCC) -> np.ndarray:
+
+def extract_features(
+    file_path: str, sr: int = SR, offset: float = OFFSET, n_mfcc: int = N_MFCC
+) -> np.ndarray:
     """
     Load one audio file and return a 1-D feature vector.
 
     With N_MFCC=40: 434 values.  With N_MFCC=20: 234 values.
     """
     y, sample_rate = librosa.load(
-        file_path, res_type="kaiser_fast",
-        sr=sr, offset=offset,
+        file_path,
+        res_type="kaiser_fast",
+        sr=sr,
+        offset=offset,
     )
 
     features = []
@@ -64,14 +67,16 @@ def extract_features(file_path: str, sr: int = SR,
     mfccs = librosa.feature.mfcc(y=y, sr=sample_rate, n_mfcc=n_mfcc)
     for i in range(n_mfcc):
         coeff = mfccs[i]
-        features.extend([
-            np.mean(coeff),
-            np.std(coeff),
-            np.min(coeff),
-            np.max(coeff),
-            float(sp_stats.skew(coeff)),
-            float(sp_stats.kurtosis(coeff)),
-        ])
+        features.extend(
+            [
+                np.mean(coeff),
+                np.std(coeff),
+                np.min(coeff),
+                np.max(coeff),
+                float(sp_stats.skew(coeff)),
+                float(sp_stats.kurtosis(coeff)),
+            ]
+        )
 
     # ── Delta MFCCs (velocity) ─────────────────────────────────────────
     delta = librosa.feature.delta(mfccs)
@@ -113,8 +118,8 @@ extract_mfccs = extract_features  # old name still works
 
 # ── Batch extraction ───────────────────────────────────────────────────────
 
-def extract_features_for_dataset(df: pd.DataFrame,
-                                 n_mfcc: int = N_MFCC) -> pd.DataFrame:
+
+def extract_features_for_dataset(df: pd.DataFrame, n_mfcc: int = N_MFCC) -> pd.DataFrame:
     """
     Given a DataFrame with a ``path`` column, extract features for every row.
 
@@ -130,7 +135,7 @@ def extract_features_for_dataset(df: pd.DataFrame,
         try:
             feats = extract_features(path, n_mfcc=n_mfcc)
             feature_list.append(feats)
-        except Exception as e:
+        except Exception:
             # On error (corrupt file, too short, etc.) fill with zeros
             feature_list.append(np.zeros(len(col_names)))
             errors += 1
