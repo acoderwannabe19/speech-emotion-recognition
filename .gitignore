@@ -1,7 +1,6 @@
 .venv/
 
-data/raw/
-data/interim/
+data/
 
 models/mlruns/
 models/*.joblib
