@@ -4,12 +4,8 @@ Central configuration: paths, constants, and mappings for all datasets.
 
 from pathlib import Path
 
-# ── Project root (one level up from src/) ──────────────────────────────────
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-print(f"Project root: {PROJECT_ROOT}")
-
-# ── Raw data paths ─────────────────────────────────────────────────────────
 DATA_RAW = PROJECT_ROOT / "data" / "raw"
 DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
 DATA_INTERIM = PROJECT_ROOT / "data" / "interim"
@@ -27,10 +23,10 @@ TESS_DIR = (
 )
 CREMA_DIR = DATA_RAW / "cremad" / "versions" / "1" / "AudioWAV"
 
-# ── Emotion mappings ──────────────────────────────────────────────────────
+# emotion mappings
 RAVDESS_EMOTION_MAP = {
     1: "neutral",
-    2: "neutral",  # merge calm → neutral
+    2: "neutral",  # merge calm and neutral
     3: "happy",
     4: "sad",
     5: "angry",
@@ -123,11 +119,11 @@ CREMA_FEMALE_IDS = {
     1091,
 }
 
-# ── Emotions to exclude (too few samples / too imbalanced) ─────────────────
+# too few samples/underrepresented
 EXCLUDED_EMOTIONS = {"surprise"}
 
-# ── Feature extraction defaults ───────────────────────────────────────────
+# feature extraction defaults
 N_MFCC = 40
-SR = 22050  # 22 050 Hz is librosa's default and sufficient for speech
+SR = 22050
 DURATION = 3.0
 OFFSET = 0.5

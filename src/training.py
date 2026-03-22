@@ -1,8 +1,8 @@
 """
-Train / evaluate helpers — split, scale, save artefacts.
+Train / evaluate helpers: split, scale, save artefacts.
 
-Key point: scaling is done AFTER the train/test split to prevent data leakage.
-The scaler is fit on the training set only, then applied to the test set.
+scaling is done AFTER the train/test split to prevent data leakage.
+The scaler is fit on the training set only, then applied to the test set, separately.
 """
 
 import joblib
@@ -12,7 +12,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 from src.config import DATA_PROCESSED, MODELS_DIR
 
-# Columns that are NOT features
+# columns that are NOT features
 META_COLS = ["labels", "source", "path"]
 
 

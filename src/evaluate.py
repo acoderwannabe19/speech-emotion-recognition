@@ -1,5 +1,5 @@
 """
-Evaluation helpers — confusion matrix, classification report, plots.
+Evaluation helpers: confusion matrix, classification report, plots.
 """
 
 import matplotlib.pyplot as plt

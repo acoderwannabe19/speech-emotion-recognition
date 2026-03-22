@@ -1,4 +1,4 @@
-"""Tests for src/training.py — split, scale, and data preparation."""
+"""Tests for src/training.py: split, scale, and data preparation."""
 
 import numpy as np
 import pandas as pd
@@ -65,7 +65,7 @@ class TestScaleFeatures:
 
     def test_scaled_values_in_range(self, sample_df):
         X_train, X_test, _, _ = split_data(sample_df)
-        X_train_s, X_test_s, _ = scale_features(X_train, X_test, save_scaler=False)
+        X_train_s, _, _ = scale_features(X_train, X_test, save_scaler=False)
         # Train should be exactly [0, 1]
         assert X_train_s.min().min() >= -1e-10
         assert X_train_s.max().max() <= 1.0 + 1e-10

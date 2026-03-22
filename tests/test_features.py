@@ -6,7 +6,7 @@ import pytest
 from src.config import N_MFCC, RAVDESS_DIR
 from src.features import extract_features, extract_mfccs, get_feature_names
 
-# Use a real sample from the dataset for integration-style tests
+# real sample from the dataset for integration tests
 SAMPLE_WAV = str(RAVDESS_DIR / "Actor_01" / "03-01-01-01-01-01-01.wav")
 
 

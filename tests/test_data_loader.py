@@ -1,4 +1,4 @@
-"""Tests for src/data_loader.py — dataset loading and filtering."""
+"""Tests for src/data_loader.py: dataset loading and filtering."""
 
 import pandas as pd
 import pytest

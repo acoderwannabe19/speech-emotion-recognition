@@ -1,7 +1,7 @@
 """
 Audio feature extraction utilities.
 
-Extracts a rich set of handcrafted features from each audio file:
+Extracts a rich set of features from each audio file:
   - N MFCCs  x 6 statistics (mean, std, min, max, skew, kurtosis)    = Nx6
   - N delta-MFCCs x 2 statistics (mean, std)                         = Nx2
   - N delta2-MFCCs x 2 statistics (mean, std)                        = Nx2
@@ -21,7 +21,6 @@ from scipy import stats as sp_stats
 from src.config import N_MFCC, OFFSET, SR
 
 
-# ── Feature names (in order) - useful for inspection / importance plots ────
 def get_feature_names(n_mfcc: int = N_MFCC) -> list[str]:
     """Return an ordered list of feature column names."""
     names = []
@@ -43,9 +42,6 @@ def get_feature_names(n_mfcc: int = N_MFCC) -> list[str]:
     return names
 
 
-# ── Single-file extraction ─────────────────────────────────────────────────
-
-
 def extract_features(
     file_path: str, sr: int = SR, offset: float = OFFSET, n_mfcc: int = N_MFCC
 ) -> np.ndarray:
@@ -63,7 +59,7 @@ def extract_features(
 
     features = []
 
-    # ── MFCCs: shape (n_mfcc, T) ──────────────────────────────────────
+    # MFCCs: shape (n_mfcc, T)
     mfccs = librosa.feature.mfcc(y=y, sr=sample_rate, n_mfcc=n_mfcc)
     for i in range(n_mfcc):
         coeff = mfccs[i]
@@ -78,22 +74,22 @@ def extract_features(
             ]
         )
 
-    # ── Delta MFCCs (velocity) ─────────────────────────────────────────
+    # Delta MFCCs (velocity)
     delta = librosa.feature.delta(mfccs)
     for i in range(n_mfcc):
         features.extend([np.mean(delta[i]), np.std(delta[i])])
 
-    # ── Delta-delta MFCCs (acceleration) ───────────────────────────────
+    # Delta-delta MFCCs (acceleration)
     delta2 = librosa.feature.delta(mfccs, order=2)
     for i in range(n_mfcc):
         features.extend([np.mean(delta2[i]), np.std(delta2[i])])
 
-    # ── Chroma: shape (12, T) ─────────────────────────────────────────
+    # Chroma: shape (12, T)
     chroma = librosa.feature.chroma_stft(y=y, sr=sample_rate)
     for i in range(12):
         features.extend([np.mean(chroma[i]), np.std(chroma[i])])
 
-    # ── Spectral / energy descriptors ──────────────────────────────────
+    # Spectral / energy descriptors
     zcr = librosa.feature.zero_crossing_rate(y)
     features.extend([np.mean(zcr), np.std(zcr)])
 
@@ -112,11 +108,7 @@ def extract_features(
     return np.array(features)
 
 
-# ── Backward-compatible alias ──────────────────────────────────────────────
 extract_mfccs = extract_features  # old name still works
-
-
-# ── Batch extraction ───────────────────────────────────────────────────────
 
 
 def extract_features_for_dataset(df: pd.DataFrame, n_mfcc: int = N_MFCC) -> pd.DataFrame:

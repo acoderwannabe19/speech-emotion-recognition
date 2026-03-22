@@ -1,7 +1,7 @@
 """
 Bayesian hyperparameter sweep with Optuna + MLflow tracking.
 
-Uses Optuna's Tree-structured Parzen Estimator (TPE) to intelligently
+Uses Optuna's Tree-structured Parzen Estimator (TPE) to "intelligently"
 explore hyperparameter spaces instead of brute-force grid search.
 Also includes a Soft-Voting Classifier built from the best individual models.
 """
@@ -27,10 +27,10 @@ from sklearn.metrics import (
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 
-# Silence Optuna's verbose trial logs (progress is printed manually)
+# silence Optuna's verbose trial logs
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-# ── Model registry ─────────────────────────────────────────────────────────
+# Model registry
 # Each entry maps a model name to a function that receives an Optuna trial
 # and returns (model_instance, param_dict_for_logging).
 
@@ -106,9 +106,7 @@ def _suggest_lr(trial: optuna.Trial):
     return LogisticRegression(**params, random_state=42, n_jobs=-1), params
 
 
-# ── Evaluation ──────────────────────────────────────────────────────────────
-
-
+# Evaluation
 def evaluate_model(model, X_test, y_test) -> dict:
     """Return a dict of common classification metrics."""
     y_pred = model.predict(X_test)
@@ -122,9 +120,7 @@ def evaluate_model(model, X_test, y_test) -> dict:
         }
 
 
-# ── Bayesian sweep ──────────────────────────────────────────────────────────
-
-
+# Bayesian sweep
 def run_sweep(
     X_train: pd.DataFrame,
     X_test: pd.DataFrame,
@@ -205,9 +201,7 @@ def run_sweep(
     return pd.DataFrame(results)
 
 
-# ── Voting Classifier ──────────────────────────────────────────────────────
-
-
+# Voting Classifier
 def build_voting_classifier(
     results_df: pd.DataFrame,
     X_train: pd.DataFrame,
@@ -274,9 +268,7 @@ def build_voting_classifier(
     return vc, metrics, run_id
 
 
-# ── Helpers ─────────────────────────────────────────────────────────────────
-
-
+# Helpers
 def get_best_run(results_df: pd.DataFrame, metric: str = "f1_weighted") -> pd.Series:
     """Return the row with the highest value of `metric`."""
     return results_df.loc[results_df[metric].idxmax()]

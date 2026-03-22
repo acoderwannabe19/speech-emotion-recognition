@@ -1,10 +1,10 @@
-"""Tests for src/evaluate.py — confusion matrix, report, sweep plots."""
+"""Tests for src/evaluate.py: confusion matrix, report, sweep plots."""
 
 import matplotlib
 import pandas as pd
 import pytest
 
-matplotlib.use("Agg")  # non-interactive backend for CI
+matplotlib.use("Agg")
 
 from src.evaluate import (
     plot_confusion_matrix,

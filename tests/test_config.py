@@ -1,4 +1,4 @@
-"""Tests for src/config.py — paths, mappings, and constants."""
+"""Tests for src/config.py: paths, mappings, and constants."""
 
 from pathlib import Path
 
