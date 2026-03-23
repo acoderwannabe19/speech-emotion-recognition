@@ -19,8 +19,6 @@ A machine learning project for recognizing emotions from speech audio using clas
 ```bash
 # install dependencies
 pip install -r requirements.txt
-
-
 ```
 
 ## Tools
